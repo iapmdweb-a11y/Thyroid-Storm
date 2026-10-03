@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thyroid Storm Cytology Quiz</title>
+<style>
+:root{--bg:#f3f6f7;--ink:#17262b;--mute:#5b6b70;--card:#fff;--line:#cfdadd;--accent:#0f6b73;--ok:#1d7a46;--bad:#a8322d;--okbg:#e4f3ea;--badbg:#f8e6e4}
+@media(prefers-color-scheme:dark){:root{--bg:#10191c;--ink:#e6eef0;--mute:#9fb0b5;--card:#182428;--line:#2c3d42;--accent:#5cc2cc;--ok:#6fd49a;--bad:#f09590;--okbg:#17352488;--badbg:#3a1d1c88}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 Georgia,"Times New Roman",serif}
+main{max-width:720px;margin:0 auto;padding:24px 18px 60px}
+h1{font-size:1.7rem;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 20px}
+.bar{height:6px;background:var(--line);border-radius:3px;margin:12px 0 20px}
+.bar i{display:block;height:100%;width:0;background:var(--accent);border-radius:3px;transition:width .3s}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:22px}
+.meta{color:var(--mute);font:14px system-ui,sans-serif;margin-bottom:8px}
+.q{font-size:1.15rem;margin:0 0 16px}
+.opt{display:block;width:100%;text-align:left;font:inherit;color:inherit;background:transparent;border:1px solid var(--line);border-radius:8px;padding:11px 14px;margin:8px 0;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt:focus-visible,.btn:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.opt.ok{background:var(--okbg);border-color:var(--ok)}
+.opt.bad{background:var(--badbg);border-color:var(--bad)}
+.exp{margin-top:14px;padding:12px 14px;border-left:4px solid var(--accent);background:var(--bg);font-size:.97rem}
+.btn{font:600 15px system-ui,sans-serif;background:var(--accent);color:#fff;border:0;border-radius:8px;padding:11px 20px;cursor:pointer;margin-top:16px}
+@media(prefers-color-scheme:dark){.btn{color:#08181b}}
+.btn.alt{background:transparent;color:var(--accent);border:1px solid var(--accent);margin-left:8px}
+.score{font-size:3rem;margin:4px 0}
+input[type=text]{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);width:100%;max-width:360px}
+.hide{display:none}
+#cert{display:none}
+@media print{
+ body{background:#fff;color:#000}
+ main{display:none}
+ #cert{display:flex;position:fixed;inset:0;margin:0;border:6px double #1F3A5F;padding:40px;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-family:Georgia,serif;color:#222}
+ #cert h2{font-size:2.4rem;margin:0 0 20px;color:#1F3A5F}
+ #cert .nm{font-size:2rem;border-bottom:1px solid #1F3A5F;min-width:60%;padding:4px 20px;margin:12px 0 20px}
+ #cert .t{font-size:1.5rem;font-weight:bold;color:#1F3A5F;margin:8px 0}
+ #cert small{margin-top:40px;font:italic 12px system-ui,sans-serif;color:#555;max-width:80%}
+ @page{size:A4 landscape;margin:12mm}
+}
+</style>
+</head>
+<body>
+<main>
+ <h1>Thyroid Storm Cytology Quiz</h1>
+ <p class="sub">Bethesda System, adequacy, benign and malignant entities, ancillary tests.</p>
+ <div class="bar"><i id="prog"></i></div>
+ <section id="quiz" class="card" aria-live="polite"></section>
+ <section id="done" class="card hide">
+  <div class="meta">Quiz complete</div>
+  <div class="score" id="score"></div>
+  <p id="msg"></p>
+  <label for="nm">Name for certificate</label><br>
+  <input type="text" id="nm" placeholder="Your full name" autocomplete="name"><br>
+  <button class="btn" id="print">Print certificate</button>
+  <button class="btn alt" id="again">Retake quiz</button>
+ </section>
+</main>
+
+<div id="cert">
+ <h2>CERTIFICATE OF COMPLETION</h2>
+ <div>This is to certify that</div>
+ <div class="nm" id="cname"></div>
+ <div>has completed the self-study quiz</div>
+ <div class="t">Thyroid Storm Cytology Quiz</div>
+ <div>Score: <b id="cscore"></b> &nbsp;|&nbsp; Date: <b id="cdate"></b></div>
+ <small>Self-study certificate for educational purposes only. Not accredited; no CME/CPD credit. Not issued by or affiliated with any professional society or academy. Score is self-reported.</small>
+</div>
+
+<script>
+const Q=[
+["Which nuclear features are most characteristic of papillary thyroid carcinoma on FNA?",["Salt-and-pepper chromatin with plasmacytoid cells","Grooves, intranuclear pseudoinclusions, and powdery, clear chromatin","Prominent macronucleoli with oncocytic cytoplasm","Small hyperchromatic nuclei with molding"],1,"This is the classic PTC triad: enlarged, overlapping, irregular nuclei, chromatin clearing, and grooves and pseudoinclusions."],
+["Minimum adequacy for a follicular-cell-predominant thyroid FNA (no atypia)?",["3 groups of 5 cells","6 groups of 10 well-visualized follicular cells each","10 groups of 20 cells each","1 group of 50 cells"],1,"The '6 by 10' rule. Exceptions: atypia, inflammation (e.g., thyroiditis), or abundant colloid."],
+["Many H\u00fcrthle cells in a background of polymorphous lymphocytes and plasma cells suggest:",["H\u00fcrthle cell neoplasm (Bethesda IV)","Medullary carcinoma","Hashimoto thyroiditis (Bethesda II)","Nondiagnostic (Bethesda I)"],2,"Oncocytes plus polymorphous lymphoid cells is the typical picture of Hashimoto thyroiditis. Benign."],
+["Dispersed plasmacytoid cells, salt-and-pepper chromatin, and amorphous material. Best confirmatory test?",["Calcitonin immunostain","Thyroglobulin alone","CD20 flow cytometry","HBME-1 and galectin-3"],0,"Suggests medullary carcinoma. Calcitonin (with CEA and neuroendocrine markers, thyroglobulin negative) confirms it."],
+["Why can't FNA separate follicular adenoma from follicular carcinoma?",["Nuclei are identical to papillary carcinoma","Diagnosis depends on capsular/vascular invasion seen on histology","Carcinomas never give cellular aspirates","Both always show abundant colloid"],1,"Cytology overlaps completely. Invasion defines malignancy, so these are reported as follicular neoplasm (Bethesda IV)."],
+["Which Bethesda category is 'Suspicious for malignancy'?",["Category III","Category IV","Category V","Category VI"],2,"I Nondiagnostic, II Benign, III AUS, IV Follicular neoplasm, V Suspicious for malignancy, VI Malignant."],
+["Which finding is typical of a benign colloid nodule?",["Abundant colloid with macrofollicles and flat 'honeycomb' sheets","Crowded microfollicles, scant colloid","Monotonous oncocytes, no colloid","Plasmacytoid cells with amyloid"],0,"Colloid-rich with flat, evenly spaced, bland follicular cells."],
+["A painful, tender thyroid: multinucleated giant cells, granulomatous inflammation, degenerated follicular cells.",["Anaplastic carcinoma","Graves disease","Subacute granulomatous (de Quervain) thyroiditis","Tall cell papillary carcinoma"],2,"Painful thyroid plus giant cells and granulomas. Benign (Bethesda II)."],
+["Which picture fits anaplastic thyroid carcinoma?",["Bland cells in honeycomb sheets","Monotonous small round cells","Cohesive cells with grooves only","Markedly pleomorphic bizarre spindle/giant cells with necrosis and mitoses"],3,"High-grade, undifferentiated. Reported as Bethesda VI with a very poor prognosis."],
+["Which statement about NIFTP is correct?",["Reliably diagnosed on FNA alone","Diagnosed only after histology excludes capsular/vascular invasion","Always shows psammoma bodies","Treated with total thyroidectomy and radioiodine"],1,"FNA can only raise the possibility. NIFTP is generally managed by lobectomy."],
+["Which feature favors H\u00fcrthle cell neoplasm over Hashimoto thyroiditis?",["Many lymphocytes and plasma cells","Giant cells and granulomas","Monotonous H\u00fcrthle cells, scant colloid, little lymphoid background","Abundant watery colloid"],2,"A pure, monotonous oncocytic population suggests neoplasm (Bethesda IV). Adenoma vs carcinoma needs histology."],
+["FNA of a cyst yields only fluid with foamy macrophages and no follicular cells. Classification?",["Nondiagnostic (Bethesda I), cyst fluid only","Benign (Bethesda II)","AUS (Bethesda III)","Suspicious (Bethesda V)"],0,"Insufficient epithelium. Repeat under ultrasound guidance and sample any solid component."],
+["Monomorphic large atypical lymphoid cells with lymphoglandular bodies. Most useful ancillary test?",["Calcitonin","Flow cytometry","Congo red","Thyroglobulin"],1,"Suggests lymphoma, often on a Hashimoto background. Flow cytometry confirms clonality and lineage."],
+["Most common primary tumor to metastasize to the thyroid?",["Renal cell carcinoma","Prostate adenocarcinoma","Hepatocellular carcinoma","Gastric signet ring carcinoma"],0,"RCC is among the commonest, along with lung, breast, and colorectal. Clinical history is key."],
+["Which finding, if present, strongly suggests papillary carcinoma?",["Hemosiderin-laden macrophages","Psammoma bodies","Watery colloid","Neutrophils"],1,"Laminated calcifications are highly suggestive of PTC but not required for diagnosis."],
+["Which mutation is highly specific for papillary thyroid carcinoma?",["BRAF V600E","Germline RET","NRAS codon 61","TERT promoter alone"],0,"RAS mutations occur in follicular-patterned neoplasms (incl. NIFTP). Germline RET is linked to MEN2/medullary carcinoma."],
+["Usual next step after an AUS (Bethesda III) result?",["Immediate total thyroidectomy","Annual follow-up only","Radioiodine ablation","Repeat FNA, molecular testing, or diagnostic lobectomy, per clinical and sonographic features"],3,"Choice depends on ultrasound features, clinical risk, and patient preference."],
+["Which Bethesda category carries the highest risk of malignancy?",["III (AUS)","IV (Follicular neoplasm)","V (Suspicious)","VI (Malignant)"],3,"Risk rises from roughly 4% (II) to about 97% or more (VI)."],
+["Usual management of a Bethesda II (Benign) result?",["Clinical and sonographic follow-up; repeat FNA if growth or suspicious features","Immediate surgery","Radioiodine","Molecular testing in all cases"],0,"Low risk of malignancy, so surveillance is appropriate."],
+["Characteristic pattern of a follicular neoplasm (Bethesda IV)?",["Abundant colloid, flat sheets","Crowded microfollicles and/or dispersed cells with scant colloid","Lymphocyte sheets with germinal-center fragments","Granulomas with giant cells"],1,"Cellular aspirate with crowded, overlapping microfollicles or trabeculae and scant colloid."]
+];
+const $=id=>document.getElementById(id);
+let i=0,score=0;
+function show(){
+  $('prog').style.width=(i/Q.length*100)+'%';
+  const [q,opts,ans,exp]=Q[i];
+  const card=$('quiz');
+  card.innerHTML='<div class="meta">Question '+(i+1)+' of '+Q.length+'</div><p class="q"></p><div id="opts"></div><div id="fb"></div>';
+  card.querySelector('.q').textContent=q;
+  opts.forEach((t,k)=>{
+    const b=document.createElement('button');
+    b.className='opt';b.textContent=String.fromCharCode(65+k)+'. '+t;
+    b.onclick=()=>pick(k);
+    $('opts').appendChild(b);
+  });
+}
+function pick(k){
+  const [,,ans,exp]=Q[i];
+  const bs=[...document.querySelectorAll('.opt')];
+  bs.forEach((b,j)=>{b.disabled=true;if(j===ans)b.classList.add('ok');else if(j===k)b.classList.add('bad')});
+  if(k===ans)score++;
+  const fb=$('fb');
+  fb.innerHTML='<div class="exp"><b>'+(k===ans?'Correct. ':'Not quite. ')+'</b></div><button class="btn" id="next"></button>';
+  fb.querySelector('.exp').append(exp);
+  const n=$('next');n.textContent=i<Q.length-1?'Next question':'See my score';
+  n.onclick=()=>{i++;i<Q.length?show():finish()};n.focus();
+}
+function finish(){
+  $('prog').style.width='100%';
+  $('quiz').classList.add('hide');$('done').classList.remove('hide');
+  $('score').textContent=score+' / '+Q.length;
+  const p=score/Q.length;
+  $('msg').textContent=p>=.8?'Excellent work.':p>=.6?'Good effort. Review the explanations for the ones you missed.':'Keep practising. Retake the quiz after reviewing Bethesda categories and key entities.';
+}
+$('print').onclick=()=>{
+  $('cname').textContent=$('nm').value.trim()||'______________________';
+  $('cscore').textContent=score+' / '+Q.length;
+  $('cdate').textContent=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  window.print();
+};
+$('again').onclick=()=>{i=0;score=0;$('done').classList.add('hide');$('quiz').classList.remove('hide');show()};
+show();
+</script>
+</body>
+</html>
